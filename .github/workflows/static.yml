@@ -12,15 +12,15 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: true
 
 jobs:
   build-and-deploy:
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -37,10 +37,19 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Verify website files
+        run: |
+          test -f ./site/index.html || {
+            echo "ERROR: site/index.html is missing"
+            exit 1
+          }
+          echo "Homepage found:"
+          ls -la ./site
+
       - name: Upload site folder
         uses: actions/upload-pages-artifact@v4
         with:
-          path: './site'
+          path: ./site
 
       - name: Deploy to GitHub Pages
         id: deployment
